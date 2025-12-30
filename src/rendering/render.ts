@@ -598,13 +598,6 @@ export function renderDay(
   boundaryInfo?: { isNewWeek: boolean; isNewMonth: boolean },
   weatherForecasts?: Types.WeatherForecasts,
   hass?: Types.Hass | null,
-  eventHandlers?: {
-    keyDown: (ev: KeyboardEvent) => void;
-    pointerDown: (ev: PointerEvent) => void;
-    pointerUp: (ev: PointerEvent) => void;
-    pointerCancel: (ev: Event) => void;
-    pointerLeave: (ev: Event) => void;
-  },
 ): TemplateResult {
   // Check if this day is today
   const now = new Date();
@@ -667,7 +660,7 @@ export function renderDay(
         day.events,
         (event, index) => `${event._entityId}-${event.summary}-${index}`,
         (event, index) =>
-          renderEvent(event, day, index, config, language, isToday, weatherForecasts, hass, eventHandlers),
+          renderEvent(event, day, index, config, language, isToday, weatherForecasts, hass),
       )}
     </table>
   `;
@@ -683,13 +676,6 @@ export function renderGroupedEvents(
   language: string,
   weatherForecasts?: Types.WeatherForecasts,
   hass?: Types.Hass | null,
-  eventHandlers?: {
-    keyDown: (ev: KeyboardEvent) => void;
-    pointerDown: (ev: PointerEvent) => void;
-    pointerUp: (ev: PointerEvent) => void;
-    pointerCancel: (ev: Event) => void;
-    pointerLeave: (ev: Event) => void;
-  },
 ): TemplateResult {
   return html`
     ${days.map((day, index) => {
@@ -750,7 +736,7 @@ export function renderGroupedEvents(
 
       return html`
         ${separator}
-        ${renderDay(day, config, language, prevDay, boundaryInfo, weatherForecasts, hass, eventHandlers)}
+        ${renderDay(day, config, language, prevDay, boundaryInfo, weatherForecasts, hass)}
       `;
     })}
   `;
@@ -775,13 +761,6 @@ export function renderEvent(
   isToday: boolean,
   weatherForecasts?: Types.WeatherForecasts,
   hass?: Types.Hass | null,
-  eventHandlers?: {
-    keyDown: (ev: KeyboardEvent) => void;
-    pointerDown: (ev: PointerEvent) => void;
-    pointerUp: (ev: PointerEvent) => void;
-    pointerCancel: (ev: Event) => void;
-    pointerLeave: (ev: Event) => void;
-  },
 ): TemplateResult {
   // Add CSS class for empty days
   const isEmptyDay = Boolean(event._isEmptyDay);
@@ -909,14 +888,7 @@ export function renderEvent(
   };
 
   return html`
-    <tr
-    ${eventHandlers ? html`
-      @keydown=${eventHandlers.keyDown}
-      @pointerdown=${eventHandlers.pointerDown}
-      @pointerup=${eventHandlers.pointerUp}
-      @pointercancel=${eventHandlers.pointerCancel}
-      @pointerleave=${eventHandlers.pointerLeave}` : ''}
-    >
+    <tr cal-event-key="${event._entityId}-${event.summary}-${index}">
       ${index === 0
         ? html`
             <td

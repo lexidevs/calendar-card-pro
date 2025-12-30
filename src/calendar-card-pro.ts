@@ -108,6 +108,7 @@ class CalendarCardPro extends LitElement {
   private _holdTriggered = false;
   private _holdTimer: number | null = null;
   private _holdIndicator: HTMLElement | null = null;
+  private _targetCalEvent: Types.CalendarEventData | null = null;
 
   //-----------------------------------------------------------------------------
   // COMPUTED GETTERS
@@ -326,6 +327,15 @@ class CalendarCardPro extends LitElement {
     // Store this pointer ID to track if it's the same pointer throughout
     this._activePointerId = ev.pointerId;
     this._holdTriggered = false;
+    
+    // TODO: make this work with duplicated events (same summary and same calendar)
+    // Find the parent targetted element
+    let targetEl = ev.target as HTMLInputElement;
+    Logger.debug("Target element: ", targetEl);
+    let targetCalEventKey = targetEl.closest('tr')?.getAttribute('cal-event-key') ?? null;
+    Logger.debug('Targetted event: ', targetCalEventKey);
+    this._targetCalEvent = this.events.find((calEvent) => (calEvent._entityId == targetCalEventKey?.split('-')[0] && calEvent.summary == targetCalEventKey?.split('-')[1]) ) ?? null
+    Logger.debug('Targetted event: ', this._targetCalEvent);
 
     // Only set up hold timer if hold action is configured
     if (this.config.hold_action?.action !== 'none') {
