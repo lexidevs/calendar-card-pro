@@ -327,14 +327,15 @@ class CalendarCardPro extends LitElement {
     // Store this pointer ID to track if it's the same pointer throughout
     this._activePointerId = ev.pointerId;
     this._holdTriggered = false;
-    
+
     // TODO: make this work with duplicated events (same summary and same calendar)
+    // also currently doesn't work when an event has a '-' in the summary 
     // Find the parent targetted element
     let targetEl = ev.target as HTMLInputElement;
     Logger.debug("Target element: ", targetEl);
     let targetCalEventKey = targetEl.closest('tr')?.getAttribute('cal-event-key') ?? null;
     Logger.debug('Targetted event: ', targetCalEventKey);
-    this._targetCalEvent = this.events.find((calEvent) => (calEvent._entityId == targetCalEventKey?.split('-')[0] && calEvent.summary == targetCalEventKey?.split('-')[1]) ) ?? null
+    this._targetCalEvent = this.events.find((calEvent) => (calEvent._entityId == targetCalEventKey?.split('-')[0] && calEvent.summary == targetCalEventKey?.split('-')[1])) ?? null
     Logger.debug('Targetted event: ', this._targetCalEvent);
 
     // Only set up hold timer if hold action is configured
@@ -373,20 +374,44 @@ class CalendarCardPro extends LitElement {
     if (this._holdTriggered && this.config.hold_action) {
       Logger.debug('Executing hold action');
       const entityId = Actions.getPrimaryEntityId(this.config.entities);
-      Actions.handleAction(this.config.hold_action, this.safeHass, this, entityId, () =>
-        this.toggleExpanded(),
-      );
+      if (this._targetCalEvent) {
+        Actions.handleEventAction(
+          this.config.hold_event_action,
+          this.safeHass,
+          this,
+          this._targetCalEvent,
+          entityId,
+          () => this.toggleExpanded(),
+        );
+      } else {
+        Actions.handleAction(this.config.hold_action, this.safeHass, this, entityId, () =>
+          this.toggleExpanded(),
+        );
+      }
     } else if (!this._holdTriggered && this.config.tap_action) {
       Logger.debug('Executing tap action');
       const entityId = Actions.getPrimaryEntityId(this.config.entities);
-      Actions.handleAction(this.config.tap_action, this.safeHass, this, entityId, () =>
-        this.toggleExpanded(),
-      );
+      if (this._targetCalEvent) {
+        Actions.handleEventAction(
+          this.config.tap_event_action,
+          this.safeHass,
+          this,
+          this._targetCalEvent,
+          entityId,
+          () => this.toggleExpanded(),
+        );
+      }
+      else {
+        Actions.handleAction(this.config.tap_action, this.safeHass, this, entityId, () =>
+          this.toggleExpanded(),
+        );
+      }
     }
 
     // Reset state
     this._activePointerId = null;
     this._holdTriggered = false;
+    this._targetCalEvent = null;
 
     // Remove hold indicator if it exists
     if (this._holdIndicator) {
@@ -408,6 +433,7 @@ class CalendarCardPro extends LitElement {
     // Reset state
     this._activePointerId = null;
     this._holdTriggered = false;
+    this._targetCalEvent = null;
 
     // Remove hold indicator if it exists
     if (this._holdIndicator) {

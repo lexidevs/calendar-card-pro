@@ -105,6 +105,26 @@ export function handleAction(
   }
 }
 
+export function handleEventAction(
+  actionConfig: Types.ActionConfig,
+  hass: Types.Hass | null,
+  element: Element,
+  eventData: Types.CalendarEventData,
+  entityId?: string,
+  toggleCallback?: () => void,
+): void {
+  if (!actionConfig || !hass) return;
+
+  switch (actionConfig.action) {
+    case 'show-event-details':
+      showEventDetails(element, eventData);
+      break;
+    default:
+      handleAction(actionConfig, hass, element, entityId, toggleCallback);
+      break;
+  }
+}
+
 //-----------------------------------------------------------------------------
 // PRIVATE ACTION HANDLERS
 //-----------------------------------------------------------------------------
@@ -178,4 +198,39 @@ function fireDomEvent(element: Element, _ctx: Types.ActionContext): void {
 
   element.dispatchEvent(event);
   Logger.debug('Fired DOM event calendar-card-action');
+}
+
+
+
+// Adapted directly from Home Assistant's show-dialog-calendar-event-detail.ts
+/** 
+ * Open a dialog to show calendar event details
+ * @param element - The HTML element to dispatch the event from
+ * @param eventData - The calendar event data to display
+ */
+function showEventDetails(element: Element, eventData: Types.CalendarEventData): void {
+  const event = new Event('show-dialog', {
+    bubbles: true,
+    composed: true,
+  });
+
+  // get the event data in the expected format
+  const dialogParams = {
+    calendarId: eventData._entityId ?? '',
+    entry: {
+      dtstart: eventData.start.dateTime ?? eventData.start.date ?? '',
+      dtend: eventData.end.dateTime ?? eventData.end.date ?? '',
+      summary: eventData.summary ?? '',
+      description: eventData.description ?? '',
+      location: eventData.location ?? '',
+      recurrence_id: eventData.recurrence_id ?? undefined,
+      rrule: eventData.rrule ?? undefined,
+      uid: eventData.uid ?? undefined,
+    }
+  };
+
+
+  (event as any).detail = { dialogTag: 'dialog-calendar-event-detail', dialogParams: dialogParams };
+  element.dispatchEvent(event);
+  Logger.debug('Dispatched show-calendar-event-details event', event);
 }
