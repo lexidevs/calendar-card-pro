@@ -1081,6 +1081,21 @@ export function calculateEventProgress(event: Types.CalendarEventData): number |
   return progressPercentage;
 }
 
+/** 
+ * Determine if an entity supports a feature
+ * @param stateObj - Home Assistant state object for the entity
+ * @param feature - Feature to check support for (as a bitmask)
+ * @returns True if the entity supports the feature
+ */
+export function entitySupportsFeature(
+  stateObj: Types.HassEntity | undefined,
+  feature: number,
+): boolean {
+  if (!stateObj || !stateObj.attributes) return false;
+  const supportedFeatures = stateObj.attributes.supported_features;
+  return (typeof supportedFeatures === 'number') && (supportedFeatures & feature) === feature;
+}
+
 //-----------------------------------------------------------------------------
 // DATA FETCHING & API FUNCTIONS
 //-----------------------------------------------------------------------------
