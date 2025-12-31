@@ -208,6 +208,10 @@ export interface CalendarEventData {
   _isEmptyDay?: boolean;
   _matchedConfig?: EntityConfig;
   time?: string;
+  uid?: string;
+  recurrence_id?: string;
+  rrule?: string;
+  description?: string;
 }
 
 /**
