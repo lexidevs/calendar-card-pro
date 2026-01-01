@@ -8,6 +8,8 @@
 
 import * as Types from '../config/types';
 import * as Logger from '../utils/logger';
+import * as Constants from '../config/constants';
+import * as EventUtils from '../utils/events';
 
 //-----------------------------------------------------------------------------
 // PUBLIC API
@@ -115,9 +117,16 @@ export function handleEventAction(
 ): void {
   if (!actionConfig || !hass) return;
 
+  const ctx: Types.ActionContext = {
+    element,
+    hass,
+    entityId,
+    toggleCallback,
+  };
+
   switch (actionConfig.action) {
     case 'show-event-details':
-      showEventDetails(element, eventData);
+      showEventDetails(eventData, ctx);
       break;
     default:
       handleAction(actionConfig, hass, element, entityId, toggleCallback);
@@ -205,18 +214,27 @@ function fireDomEvent(element: Element, _ctx: Types.ActionContext): void {
 // Adapted directly from Home Assistant's show-dialog-calendar-event-detail.ts
 /** 
  * Open a dialog to show calendar event details
- * @param element - The HTML element to dispatch the event from
  * @param eventData - The calendar event data to display
+ * @param ctx - Action context
  */
-function showEventDetails(element: Element, eventData: Types.CalendarEventData): void {
+function showEventDetails(eventData: Types.CalendarEventData, ctx: Types.ActionContext): void {
   const event = new Event('show-dialog', {
     bubbles: true,
     composed: true,
   });
 
+  // check for permissions to update or delete the event
+  const canEdit = EventUtils.entitySupportsFeature(eventData._entityId ?? '', ctx.hass, Constants.CalendarEntityFeature.UPDATE_EVENT);
+  const canDelete = EventUtils.entitySupportsFeature(eventData._entityId ?? '', ctx.hass, Constants.CalendarEntityFeature.DELETE_EVENT);
+
   // get the event data in the expected format
   const dialogParams = {
     calendarId: eventData._entityId ?? '',
+    canEdit,
+    canDelete,
+    updated: () => {
+      ctx.element.updateEvents(true);
+    },
     entry: {
       dtstart: eventData.start.dateTime ?? eventData.start.date ?? '',
       dtend: eventData.end.dateTime ?? eventData.end.date ?? '',
@@ -228,9 +246,10 @@ function showEventDetails(element: Element, eventData: Types.CalendarEventData):
       uid: eventData.uid ?? undefined,
     }
   };
+  
 
 
   (event as any).detail = { dialogTag: 'dialog-calendar-event-detail', dialogParams: dialogParams };
-  element.dispatchEvent(event);
+  ctx.element.dispatchEvent(event);
   Logger.debug('Dispatched show-calendar-event-details event', event);
 }

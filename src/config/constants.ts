@@ -124,3 +124,9 @@ export const COUNTRY_NAMES: string[] = [
   'Switzerland',
   'Schweiz',
 ];
+
+export const enum CalendarEntityFeature {
+  CREATE_EVENT = 1,
+  DELETE_EVENT = 2,
+  UPDATE_EVENT = 4,
+}

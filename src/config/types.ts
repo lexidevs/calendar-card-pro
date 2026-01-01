@@ -280,7 +280,7 @@ export interface InteractionConfig {
  * Home Assistant interface
  */
 export interface Hass {
-  states: Record<string, { state: string }>;
+  states: Record<string, HassEntity>;
   callApi: (method: string, path: string, parameters?: object) => Promise<unknown>;
   callService: (domain: string, service: string, serviceData?: object) => void;
   locale?: {
@@ -374,3 +374,4 @@ export interface Translations {
     [key: string]: string | string[];
   };
 }
+
