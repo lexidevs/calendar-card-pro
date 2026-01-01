@@ -331,7 +331,7 @@ class CalendarCardPro extends LitElement {
     // Find the parent targetted element
     const targetEl = ev.target as HTMLInputElement;
     Logger.debug("Target element: ", targetEl);
-    this._targetCalEvent = (targetEl.closest('tr') as Types.CalendarEventElement).calendarEvent ?? null;
+    this._targetCalEvent = (targetEl.closest('tr') as Types.CalendarEventElement || null)?.calendarEvent ?? null;
     Logger.debug('Targetted event: ', this._targetCalEvent);
 
     // Only set up hold timer if hold action is configured
