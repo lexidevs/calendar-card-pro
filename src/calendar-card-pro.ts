@@ -328,14 +328,10 @@ class CalendarCardPro extends LitElement {
     this._activePointerId = ev.pointerId;
     this._holdTriggered = false;
 
-    // TODO: make this work with duplicated events (same summary and same calendar)
-    // also currently doesn't work when an event has a '-' in the summary 
     // Find the parent targetted element
-    let targetEl = ev.target as HTMLInputElement;
+    const targetEl = ev.target as HTMLInputElement;
     Logger.debug("Target element: ", targetEl);
-    let targetCalEventKey = targetEl.closest('tr')?.getAttribute('cal-event-key') ?? null;
-    Logger.debug('Targetted event: ', targetCalEventKey);
-    this._targetCalEvent = this.events.find((calEvent) => (calEvent._entityId == targetCalEventKey?.split('-')[0] && calEvent.summary == targetCalEventKey?.split('-')[1])) ?? null
+    this._targetCalEvent = (targetEl.closest('tr') as Types.CalendarEventElement).calendarEvent ?? null;
     Logger.debug('Targetted event: ', this._targetCalEvent);
 
     // Only set up hold timer if hold action is configured

@@ -888,7 +888,7 @@ export function renderEvent(
   };
 
   return html`
-    <tr cal-event-key="${event._entityId}-${event.summary}-${index}">
+    <tr .calendarEvent=${event}>
       ${index === 0
         ? html`
             <td

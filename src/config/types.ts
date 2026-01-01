@@ -272,6 +272,10 @@ export interface InteractionConfig {
   context: ActionContext;
 }
 
+export interface CalendarEventElement extends HTMLTableRowElement {
+  calendarEvent?: CalendarEventData | null;
+}
+
 // -----------------------------------------------------------------------------
 // HOME ASSISTANT INTEGRATION
 // -----------------------------------------------------------------------------
