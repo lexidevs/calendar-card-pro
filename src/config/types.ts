@@ -287,6 +287,7 @@ export interface Hass {
   states: Record<string, HassEntity>;
   callApi: (method: string, path: string, parameters?: object) => Promise<unknown>;
   callService: (domain: string, service: string, serviceData?: object) => void;
+  localize: (key: string, ...args: unknown[]) => string;
   locale?: {
     language: string;
     time_format?: string;
@@ -379,3 +380,12 @@ export interface Translations {
   };
 }
 
+/**
+ * Interface for dialog parameters
+ */
+export interface CalendarEventDetailsDialogParams {
+  event: CalendarEventData;
+  hass: Hass;
+  card?: HTMLElement;
+  updated: () => void;
+}

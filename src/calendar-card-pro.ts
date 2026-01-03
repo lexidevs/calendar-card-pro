@@ -40,6 +40,7 @@ import * as Feedback from './interaction/feedback';
 import * as Render from './rendering/render';
 import * as Weather from './utils/weather';
 import * as Editor from './rendering/editor';
+import { EventDetailDialog } from './rendering/event-details-dialog';
 
 //-----------------------------------------------------------------------------
 // GLOBAL TYPE DECLARATIONS
@@ -58,6 +59,7 @@ declare global {
     'calendar-card-pro-dev': CalendarCardPro;
     'calendar-card-pro-dev-editor': Editor.CalendarCardProEditor;
     'ha-ripple': HTMLElement;
+    'calendar-card-pro-dev-event-detail-dialog': EventDetailDialog;
   }
 }
 
@@ -330,8 +332,9 @@ class CalendarCardPro extends LitElement {
 
     // Find the parent targetted element
     const targetEl = ev.target as HTMLInputElement;
-    Logger.debug("Target element: ", targetEl);
-    this._targetCalEvent = (targetEl.closest('tr') as Types.CalendarEventElement || null)?.calendarEvent ?? null;
+    Logger.debug('Target element: ', targetEl);
+    this._targetCalEvent =
+      ((targetEl.closest('tr') as Types.CalendarEventElement) || null)?.calendarEvent ?? null;
     Logger.debug('Targetted event: ', this._targetCalEvent);
 
     // Only set up hold timer if hold action is configured
@@ -396,8 +399,7 @@ class CalendarCardPro extends LitElement {
           entityId,
           () => this.toggleExpanded(),
         );
-      }
-      else {
+      } else {
         Actions.handleAction(this.config.tap_action, this.safeHass, this, entityId, () =>
           this.toggleExpanded(),
         );
@@ -629,6 +631,9 @@ class CalendarCardPro extends LitElement {
 
 // Register the editor - main component registered by decorator
 customElements.define('calendar-card-pro-dev-editor', Editor.CalendarCardProEditor);
+
+// Register the event detail dialog
+customElements.define('calendar-card-pro-dev-event-detail-dialog', EventDetailDialog);
 
 // Create interface extending CustomElementConstructor to allow getStubConfig property
 interface CalendarCardConstructor extends CustomElementConstructor {

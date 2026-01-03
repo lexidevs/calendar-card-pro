@@ -8,8 +8,6 @@
 
 import * as Types from '../config/types';
 import * as Logger from '../utils/logger';
-import * as Constants from '../config/constants';
-import * as EventUtils from '../utils/events';
 
 //-----------------------------------------------------------------------------
 // PUBLIC API
@@ -209,10 +207,8 @@ function fireDomEvent(element: Element, _ctx: Types.ActionContext): void {
   Logger.debug('Fired DOM event calendar-card-action');
 }
 
-
-
 // Adapted directly from Home Assistant's show-dialog-calendar-event-detail.ts
-/** 
+/**
  * Open a dialog to show calendar event details
  * @param eventData - The calendar event data to display
  * @param ctx - Action context
@@ -222,34 +218,51 @@ function showEventDetails(eventData: Types.CalendarEventData, ctx: Types.ActionC
     bubbles: true,
     composed: true,
   });
+  // // check for permissions to update or delete the event
+  // const canEdit = EventUtils.entitySupportsFeature(eventData._entityId ?? '', ctx.hass, Constants.CalendarEntityFeature.UPDATE_EVENT);
+  // const canDelete = EventUtils.entitySupportsFeature(eventData._entityId ?? '', ctx.hass, Constants.CalendarEntityFeature.DELETE_EVENT);
 
-  // check for permissions to update or delete the event
-  const canEdit = EventUtils.entitySupportsFeature(eventData._entityId ?? '', ctx.hass, Constants.CalendarEntityFeature.UPDATE_EVENT);
-  const canDelete = EventUtils.entitySupportsFeature(eventData._entityId ?? '', ctx.hass, Constants.CalendarEntityFeature.DELETE_EVENT);
+  // // // get the event data in the expected format
+  // const dialogParams = {
+  //   calendarId: eventData._entityId ?? '',
+  //   canEdit,
+  //   canDelete,
+  //   updated: () => {
+  //     ctx.element.updateEvents(true);
+  //   },
+  //   entry: {
+  //     dtstart: eventData.start.dateTime ?? eventData.start.date ?? '',
+  //     dtend: eventData.end.dateTime ?? eventData.end.date ?? '',
+  //     summary: eventData.summary ?? '',
+  //     description: eventData.description ?? '',
+  //     location: eventData.location ?? '',
+  //     recurrence_id: eventData.recurrence_id ?? undefined,
+  //     rrule: eventData.rrule ?? undefined,
+  //     uid: eventData.uid ?? undefined,
+  //   }
+  // };
 
-  // get the event data in the expected format
-  const dialogParams = {
-    calendarId: eventData._entityId ?? '',
-    canEdit,
-    canDelete,
-    updated: () => {
-      ctx.element.updateEvents(true);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (event as any).detail = {
+    dialogTag: 'calendar-card-pro-dev-event-detail-dialog',
+    dialogImport: async () => {
+      return;
     },
-    entry: {
-      dtstart: eventData.start.dateTime ?? eventData.start.date ?? '',
-      dtend: eventData.end.dateTime ?? eventData.end.date ?? '',
-      summary: eventData.summary ?? '',
-      description: eventData.description ?? '',
-      location: eventData.location ?? '',
-      recurrence_id: eventData.recurrence_id ?? undefined,
-      rrule: eventData.rrule ?? undefined,
-      uid: eventData.uid ?? undefined,
-    }
+    dialogParams: {
+      event: eventData,
+      hass: ctx.hass!,
+      card: ctx.element,
+      updated: () => {
+        if (
+          ctx.element &&
+          'updateEvents' in ctx.element &&
+          typeof ctx.element['updateEvents'] === 'function'
+        ) {
+          ctx.element['updateEvents'](true);
+        }
+      },
+    },
   };
-  
-
-
-  (event as any).detail = { dialogTag: 'dialog-calendar-event-detail', dialogParams: dialogParams };
   ctx.element.dispatchEvent(event);
   Logger.debug('Dispatched show-calendar-event-details event', event);
 }

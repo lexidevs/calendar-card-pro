@@ -236,6 +236,7 @@ export function groupEventsByDay(
             : '',
         start: event.start,
         end: event.end,
+        description: event.description || '',
         _entityId: event._entityId,
         _entityLabel: getEntityLabel(event._entityId, config, event),
         _matchedConfig: event._matchedConfig,
@@ -1082,7 +1083,7 @@ export function calculateEventProgress(event: Types.CalendarEventData): number |
 }
 
 // Modified from src/common/entity/supports-feature.ts in home-assistant/frontend
-/** 
+/**
  * Determine if an entity supports a feature
  * @param entityId - Entity ID to check
  * @param hass - Home Assistant object
@@ -1095,11 +1096,11 @@ export function entitySupportsFeature(
   feature: number,
 ): boolean {
   if (!hass) return false;
-  
+
   const stateObj = hass.states[entityId];
   if (!stateObj || !stateObj.attributes) return false;
   const supportedFeatures = stateObj.attributes.supported_features;
-  return (typeof supportedFeatures === 'number') && (supportedFeatures & feature) === feature;
+  return typeof supportedFeatures === 'number' && (supportedFeatures & feature) === feature;
 }
 
 //-----------------------------------------------------------------------------
