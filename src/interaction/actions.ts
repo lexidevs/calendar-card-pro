@@ -1,4 +1,3 @@
-/* eslint-disable import/order */
 /**
  * Action handling for Calendar Card Pro
  *
@@ -214,55 +213,33 @@ function fireDomEvent(element: Element, _ctx: Types.ActionContext): void {
  * @param ctx - Action context
  */
 function showEventDetails(eventData: Types.CalendarEventData, ctx: Types.ActionContext): void {
-  const event = new Event('show-dialog', {
-    bubbles: true,
-    composed: true,
-  });
-  // // check for permissions to update or delete the event
-  // const canEdit = EventUtils.entitySupportsFeature(eventData._entityId ?? '', ctx.hass, Constants.CalendarEntityFeature.UPDATE_EVENT);
-  // const canDelete = EventUtils.entitySupportsFeature(eventData._entityId ?? '', ctx.hass, Constants.CalendarEntityFeature.DELETE_EVENT);
-
-  // // // get the event data in the expected format
-  // const dialogParams = {
-  //   calendarId: eventData._entityId ?? '',
-  //   canEdit,
-  //   canDelete,
-  //   updated: () => {
-  //     ctx.element.updateEvents(true);
-  //   },
-  //   entry: {
-  //     dtstart: eventData.start.dateTime ?? eventData.start.date ?? '',
-  //     dtend: eventData.end.dateTime ?? eventData.end.date ?? '',
-  //     summary: eventData.summary ?? '',
-  //     description: eventData.description ?? '',
-  //     location: eventData.location ?? '',
-  //     recurrence_id: eventData.recurrence_id ?? undefined,
-  //     rrule: eventData.rrule ?? undefined,
-  //     uid: eventData.uid ?? undefined,
-  //   }
-  // };
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (event as any).detail = {
-    dialogTag: 'calendar-card-pro-dev-event-detail-dialog',
-    dialogImport: async () => {
-      return;
-    },
-    dialogParams: {
-      event: eventData,
-      hass: ctx.hass!,
-      card: ctx.element,
-      updated: () => {
-        if (
-          ctx.element &&
-          'updateEvents' in ctx.element &&
-          typeof ctx.element['updateEvents'] === 'function'
-        ) {
-          ctx.element['updateEvents'](true);
-        }
+  const event = new CustomEvent<Types.ShowDialogDetail<Types.CalendarEventDetailsDialogParams>>(
+    'show-dialog',
+    {
+      bubbles: true,
+      composed: true,
+      detail: {
+        dialogTag: 'calendar-card-pro-dev-event-detail-dialog',
+        dialogImport: async () => {
+          return;
+        },
+        dialogParams: {
+          event: eventData,
+          hass: ctx.hass!,
+          card: ctx.element,
+          updated: () => {
+            if (
+              ctx.element &&
+              'updateEvents' in ctx.element &&
+              typeof ctx.element['updateEvents'] === 'function'
+            ) {
+              ctx.element['updateEvents'](true);
+            }
+          },
+        },
       },
     },
-  };
+  );
   ctx.element.dispatchEvent(event);
   Logger.debug('Dispatched show-calendar-event-details event', event);
 }

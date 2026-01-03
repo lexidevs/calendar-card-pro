@@ -3,8 +3,8 @@ import { CSSResultGroup, LitElement, css, html } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 
 import * as Types from '../config/types';
-import * as Logger from '../utils/logger';
 import * as FormatUtils from '../utils/format';
+import * as Logger from '../utils/logger';
 
 @customElement('calendar-card-pro-dev-event-detail-dialog')
 export class EventDetailDialog extends LitElement {
@@ -30,10 +30,11 @@ export class EventDetailDialog extends LitElement {
     this._event = undefined!;
     this._updated = undefined!;
     this.card = undefined!;
-    const ev = new Event('dialog-closed', { bubbles: true, composed: true });
-    // TODO: fix type
-    // @ts-expect-error haven't created a type for event w/ detail yet
-    ev.detail = { dialog: this.localName };
+    const ev = new CustomEvent<Types.CloseDialogDetail>('dialog-closed', {
+      bubbles: true,
+      composed: true,
+      detail: { dialog: this.localName },
+    });
     this.dispatchEvent(ev);
     Logger.debug('Event detail dialog closed');
   }

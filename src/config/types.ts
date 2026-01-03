@@ -272,8 +272,37 @@ export interface InteractionConfig {
   context: ActionContext;
 }
 
+/**
+ * Calendar event element interface, for attaching event data to HTML elements
+ */
 export interface CalendarEventElement extends HTMLTableRowElement {
   calendarEvent?: CalendarEventData | null;
+}
+
+/**
+ * Interface for dialog detail object
+ */
+export interface ShowDialogDetail<T> {
+  dialogTag: string;
+  dialogImport: () => Promise<unknown>;
+  dialogParams: T;
+}
+
+/**
+ * Interface for dialog close event detail object
+ */
+export interface CloseDialogDetail {
+  dialog: string;
+}
+
+/**
+ * Event-specific dialog parameters
+ */
+export interface CalendarEventDetailsDialogParams {
+  event: CalendarEventData;
+  hass: Hass;
+  card?: Element;
+  updated: () => void;
 }
 
 // -----------------------------------------------------------------------------
@@ -378,14 +407,4 @@ export interface Translations {
   editor?: {
     [key: string]: string | string[];
   };
-}
-
-/**
- * Interface for dialog parameters
- */
-export interface CalendarEventDetailsDialogParams {
-  event: CalendarEventData;
-  hass: Hass;
-  card?: HTMLElement;
-  updated: () => void;
 }

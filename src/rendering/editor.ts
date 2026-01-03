@@ -1473,7 +1473,7 @@ export class CalendarCardProEditor extends LitElement {
         <input
           type="date"
           name="${name}"
-          .value="${value}"
+          .value="${value as string}"
           @focus="${(e: FocusEvent) => {
             // Apply focus styles when input gets focus
             const parent = (e.target as HTMLElement).closest('.date-input') as HTMLElement;
